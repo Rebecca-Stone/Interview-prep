@@ -161,16 +161,141 @@ JavaScript has some advantages and disadvantages. JavaScript is often executed d
 - No matter what proportion fast JavaScript interpret, JavaScript DOM (Document Object Model) is slow and can be a never fast rendering with HTML.
 - If the error occurs in the JavaScript, it can stop to render the whole website. Browsers are extremely tolerant of JavaScript errors.
 - JavaScript is usually interpreted differently by different browsers. This makes it somewhat complex to read and write cross-browser code.
-- Though some HTML editors support debugging, it's not as efficient as other editors like C/C++ editors. Hence difficult for the deve;oper to detect the matter.
+- Though some HTML editors support debugging, it's not as efficient as other editors like C/C++ editors. Hence difficult for the developer to detect the matter.
 - This continuous conversions take longer in conversion of number to an integer. This increases the time needed to run the script and reduces its speed.
 
 ---
 
-## Global vs block level scopes?
+## Global vs block level scopes? [^4]
+
+Block scopes are different from function scopes in JavaScript. A function scope is created for every function (and we can nest them too):
+
+```
+function iHaveScope() {
+    // local function scope
+
+    function iHaveNestedScope() {
+        // nested local function scope
+    }
+}
+```
+
+We often identify those scopes as local scopes and identify the top-level scope as the global scope. In a browser environment, the global scope is controlled by the _window_ object while in Node.js, it's controlled by the _global_ object.
+
+It's hard to completely avoid global scope, unles you're coding purely functional style, but you should minimize the use of any global variables because they represent a state and having that defined globally makes it more vulnerable to conflicts and data corruption. You should use an _[Immediately Invoked Function Expression (IIFE)](https://en.wikipedia.org/wiki/Immediately_invoked_function_expression)_ - when you can - to wrap all your JavaScript code in a local function scope (in Node.js, this is actually done automatically for every module, so you don't have to do it there):
+
+```
+void function() {
+    // your code here
+}()
+```
+
+Block scopes are what you get when you use if statements, for statements, and the like. You can also use them stand-alone with a simple begin-end curly braces `{}`, not to be confused with empty object literals.
+
+```
+var a = {} //empty object literal
+
+{ var a } // undefined object in a block scope
+
+if(3 == '3') {
+    // block scope for the if statement
+}
+
+for (var i = 0; i < 10; i++){
+    // block scope for the for statement
+}
+```
+
+### var vs. let
+
+The var keyword behaves in function scopes and block scopes. A variable declared with var in a function scope can't be accessed outside that function scope.
+
+```
+function iHaveScope() {
+    var secret = 42;
+}
+
+secret; //ReferenceError: secret is not defined (in this scope)
+```
+
+A variable declared with var in a block scope is available outside of that block scope.
+
+```
+for (var i = 0; i < 10; i++){
+    // block scope for the for statement
+}
+
+console.log(i) // => 10 (why oh why)
+```
+
+The i variable that we often use in a for loop will continue to exist beyond the scope of that loop, and that does not make sense, really.
+
+Luckily we now have a different way to declare variables, using let. Variables declared with let inside a block scope are only accessible inside that scope, making let the ideal solution to the for loop index variable scope problem. If we use let to declare the i variable in a for loop, that variable will only be available inside the for loop.
+
+```
+for(let i = 0; i < 10; i++) {
+    // block scope for the for statement
+}
+
+console.log(i) // ReferenceError: i is not defined (D'oh!)
+```
+
+### const
+
+Declaring a variable with const is exactly like let - when it comes to scopes - but creates a _constant reference_ for the variable. We can't change the value of a constant reference. If we put a primitive value in a constant, that value will be protected from getting changed:
+
+```
+const PI = 3.141592653589793
+PI = 42 // SyntaxError: "PI" is read-only
+```
+
+Note that if the constant is an object, we can still change the properties of that object, so be careful about that:
+
+```
+const dessert = { type: 'pie' };
+dessert.type = 'pudding'; // Sure thing
+
+console.log(dessert.type) // pudding
+```
+
+We can't however, reassign an object declared with const:
+
+```
+const dessert = { type: 'pie' };
+dessert = { type: 'cake' }; // SyntaxError: "dessert" is read-only
+```
+
+If we want a completely immutable object, we'll have to use something else. My favorite library for that is [Immutable.js](https://facebook.github.io/immutable-js/)
+
+Constants are popularly used when importing things from other libraries so that they don't get changed accidentally. In Node.js for example, we use it with the require function:
+
+```
+const _ = require('lodash');
+```
+
+Constants are also great to use when defining functions, because we rarely need to update a function after we define it the first time.
+
+In general, I think it's good to always use const for your declarations and only switch to let or var if you actually need to. With const, you get the peace of mind that no mutating reassignments are happening on a variable, while with let/var, you'll have to read the code to verify that:
+
+```
+let answer = 42;
+// some code ...
+
+//answer MIGHT be 42 here, read the code to be sure.
+
+// ***
+// VS.
+// ***
+
+const answer = 42;
+// some code ...
+
+// answer IS STILL 42 here, no matter what happens above
+```
 
 ---
 
-## Why do we use the "use strict" directives?
+## Why do we use the "use strict" directives? [^5]
 
 ---
 
@@ -193,3 +318,5 @@ JavaScript has some advantages and disadvantages. JavaScript is often executed d
 [^1]: [mdn web docs](https://developer.mozilla.org/en-US/docs/Glossary/Hoisting)
 [^2]: [30 Seconds of Code](https://www.30secondsofcode.org/articles/s/javascript-sync-async)
 [^3]: [GeeksforGeeks](https://www.geeksforgeeks.org/advantages-and-disadvantages-of-javascript/)
+[^4]: [medium](https://medium.com/edge-coders/function-scopes-and-block-scopes-in-javascript-25bbd7f293d7#:~:text=In%20a%20browser%20environment%2C%20the,controlled%20by%20the%20global%20object.&text=Block%20scopes%20are%20what%20you,for%20statements%2C%20and%20the%20like.)
+[^5]: [w3schools](https://www.w3schools.com/js/js_strict.asp#:~:text=The%20%22use%20strict%22%20Directive&text=The%20purpose%20of%20%22use%20strict,for%20example%2C%20use%20undeclared%20variables.&text=The%20numbers%20in%20the%20table,that%20fully%20supports%20the%20directive.)
