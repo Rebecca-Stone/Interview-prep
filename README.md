@@ -297,6 +297,32 @@ const answer = 42;
 
 ## Why do we use the "use strict" directives? [^5]
 
+The **"use strict"** directive was new in ECMAScript version 5.
+
+It is not a statement, but a literal expression, ignored by earlier versions of JavaScript.
+
+The purpose of **"use strict"** is to indicate that the code should be executed in "strict mode".
+
+With strict mode, you can not for example, use undeclared variables.
+
+All modern browsers support **"use strict"** except Internet Explorer 9 and lower.
+
+You can use strict mode in all your programs. it helps you to write cleaner code, like preventing you from using undeclared variables.
+
+**"use strict"** is just a string, so IE 9 will not throw an error even if it does not understand it.
+
+### Why Strict Mode?
+
+Strict mode makes it easier to write "secure" JavaScript.
+
+Strict mode changes previously accepted "bad syntax" into real errors.
+
+As an example, in normal JavaScript, mistyping a variable name creates a new global variable. In strict mode, this will throw an error, making it impossible to accidentally create a global variable.
+
+In normal JavaScript, a developer will not recive any error feedback assigning values to non-writable properties.
+
+In script mode, any assignment to a non-writable property, a getter-only property, a non-existing property, a non-existing object, will throw an error.
+
 ---
 
 ## What is an IIFE?
